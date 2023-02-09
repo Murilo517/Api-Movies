@@ -103,6 +103,8 @@ const listAllMovies = async (
 
     let count: number = queryResult.rowCount;
 
+    let totalPages : number = Math.ceil(count / 5)
+
     const baseURL: string = `localhost:3000/movies`;
 
     let previousPage: any = `${baseURL}?page=${page - 1}&perPage=${perPage}`;
@@ -111,7 +113,7 @@ const listAllMovies = async (
     }
 
     let nextPage: any = `${baseURL}?page=${page + 1}&perPage=${perPage}`;
-    if (page >= 5) {
+    if (page >= totalPages) {
       nextPage = null;
     }
 
