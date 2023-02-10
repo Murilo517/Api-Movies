@@ -61,7 +61,6 @@ const listAllMovies = async (
     if (!order) {
       order = "ASC";
     }
-   
 
     let query: string = "";
 
@@ -76,7 +75,7 @@ const listAllMovies = async (
         ;`,
         perPage,
         perPage * (page - 1)
-      )
+      );
     } else {
       query = format(
         `
@@ -91,19 +90,33 @@ const listAllMovies = async (
         sort,
         order,
         perPage,
-        perPage * (page-1)
+        perPage * (page - 1)
       );
     }
 
-    const queryConfig: QueryConfig = {
+    let queryConfig: QueryConfig = {
       text: query,
     };
 
-    const queryResult: movieResult = await client.query(queryConfig);
+    let queryResult: movieResult = await client.query(queryConfig);
 
     let count: number = queryResult.rowCount;
 
-    let totalPages : number = Math.ceil(count / 5)
+    const queryGetRow = `
+     
+    SELECT
+    *
+    FROM
+    movies
+    
+    `;
+    const queryConfigGetRow = {
+      text: queryGetRow,
+    };
+
+    const queryResultGetRow = await client.query(queryConfigGetRow);
+
+    const numberOfPages = queryResultGetRow.rowCount / perPage;
 
     const baseURL: string = `localhost:3000/movies`;
 
@@ -112,10 +125,10 @@ const listAllMovies = async (
       previousPage = null;
     }
 
-    let nextPage: any = `${baseURL}?page=${page + 1}&perPage=${perPage}`;
-    if (page >= totalPages) {
-      nextPage = null;
-    }
+    let nextPage: any =
+      numberOfPages <= page
+        ? null
+        : `${baseURL}?page=${page + 1}&perPage=${perPage}`;
 
     const pagination: iPagination = {
       previousPage,
